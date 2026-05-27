@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
@@ -12,4 +13,13 @@ export class Login {
   togglePassword() {
     this.showPassword = !this.showPassword;
   }
+
+  mensajeError = signal('');
+
+  formularioLogin = new FormGroup({
+    email: new FormControl(''),
+    password: new FormControl('')
+  });
 }
+
+
