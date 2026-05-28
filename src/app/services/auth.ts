@@ -11,7 +11,7 @@ interface LoginResponse {
 })
 export class Auth {
 
-  private apiUrl = 'http://localhost:1702/api/usuario/login';
+  private baseUrl = 'http://localhost:1702/api/usuario';
 
   constructor(private http: HttpClient) { }
 
@@ -21,7 +21,17 @@ export class Auth {
       password: password
     }
 
-    return this.http.post<LoginResponse>(this.apiUrl, body);
+    return this.http.post<LoginResponse>(`${this.baseUrl}/login`, body);
+  }
+
+  registro(nombre: string, email: string, password: string): Observable<any> {
+    let body = {
+      nombre: nombre,
+      email: email,
+      password: password
+    }
+
+    return this.http.post<any>(`${this.baseUrl}/registrar`, body);
   }
 
   guardarToken(token: string): void {
