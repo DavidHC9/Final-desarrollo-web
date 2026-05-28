@@ -69,8 +69,8 @@
               <polyline points="22,6 12,13 2,6" />
             </svg>
           </span>
-          <input type="email" id="email" class="form-input" placeholder="Ingresa tu correo" required
-            autocomplete="email" />
+          <input type="email" id="email" class="form-input" formControlName="email" placeholder="Ingresa tu correo"
+            required autocomplete="email" />
         </div>
       </div>
 
@@ -87,7 +87,7 @@
             </svg>
           </span>
           <input [type]="showPassword ? 'text' : 'password'" id="password" class="form-input password-input"
-            placeholder="Ingresa tu contraseña" required autocomplete="current-password" />
+            formControlName="password" placeholder="Ingresa tu contraseña" required autocomplete="current-password" />
 
           <!-- Icono de ojo para alternar visibilidad -->
           <button type="button" class="password-toggle" (click)="togglePassword()"
