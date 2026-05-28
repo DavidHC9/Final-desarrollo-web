@@ -1,5 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Auth } from '../../services/auth';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +23,32 @@ export class Login {
     password: new FormControl('')
   });
 
-  iniciarSesion() {
+  constructor(
+    private authService: Auth,
+    private router: Router
+  ) {
+  }
+
+  iniciarSesion(): void {
+
+    const email = this.formularioLogin.value.email || '';
+    const password = this.formularioLogin.value.password || '';
+
+    this.authService.login(email, password).subscribe({
+      next: respuesta => {
+
+        if (respuesta.token) {
+          this.authService.guardarToken(respuesta.token);
+          this.router.navigate(['/home'])
+        } else {
+          this.mensajeError.set('No se recibió token');
+        }
+      },
+      error: error => {
+        this.mensajeError.set('Email o contraseña incorrectos');
+        console.error(error);
+      }
+    })
 
   }
 }
