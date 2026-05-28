@@ -41,6 +41,22 @@ export class Auth {
     }
   }
 
+  // Decodifica el token JWT guardado para extraer el correo del usuario
+  obtenerEmailUsuario(): string {
+    let token = this.obtenerToken();
+    if (!token) {
+      return '';
+    }
+    try {
+      let payloadBase64 = token.split('.')[1];
+      let payloadDecodificado = atob(payloadBase64);
+      let payload = JSON.parse(payloadDecodificado);
+      return payload.email || '';
+    } catch (e) {
+      return '';
+    }
+  }
+
   cerrarSesion(): void {
     sessionStorage.removeItem('token_usuario')
   }

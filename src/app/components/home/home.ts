@@ -100,16 +100,20 @@ export class Home implements OnInit {
     this.sortBy.set(select.value as 'fecha' | 'calificacion' | 'nombre');
   }
 
-  // Establecer calificación por estrellas en el modal
+  // Establecer calificación por estrellas en el modal (permite alternar a 0 si se pulsa la primera estrella ya activa)
   setRating(rating: number) {
-    this.selectedRating = rating;
+    if (rating === 1 && this.selectedRating === 1) {
+      this.selectedRating = 0;
+    } else {
+      this.selectedRating = rating;
+    }
   }
 
   // Abrir modal en modo "Agregar"
   openAddModal() {
     this.isEditMode = false;
     this.selectedRestauranteId = null;
-    this.selectedRating = 5;
+    this.selectedRating = 0;
     this.restauranteForm.reset({
       nombre: '',
       fechavisita: new Date().toISOString().split('T')[0], // fecha de hoy por defecto
@@ -207,6 +211,11 @@ export class Home implements OnInit {
 
   getEmptyStars(rating: number): number[] {
     return Array(5 - rating).fill(0);
+  }
+
+  // Obtener el correo del usuario activo decodificado del JWT
+  obtenerEmailUsuario(): string {
+    return this.authService.obtenerEmailUsuario() || 'admin@thedailyfeast.com';
   }
 
   // Cerrar sesión limpiando la información en sessionStorage

@@ -2,18 +2,14 @@
   <!-- Barra de Navegación Superior -->
   <nav class="navbar">
     <div class="navbar-brand">
-      <svg class="nav-logo" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        <!-- Logotipo SVG minimalista en dorado -->
-        <circle cx="60" cy="50" r="4" stroke="#a28059" stroke-width="2" fill="none"/>
-        <path d="M40 76 C 40 58, 80 58, 80 76 Z" stroke="#a28059" stroke-width="2" fill="none"/>
-        <path d="M28 80 L 92 80" stroke="#a28059" stroke-width="2" stroke-linecap="round"/>
-        <path d="M78 88 C 88 84, 94 74, 90 60" stroke="#a28059" stroke-width="1" fill="none"/>
-      </svg>
+      <!-- Logotipo personalizado de la marca -->
+      <img src="logo.png" class="nav-logo" alt="The Daily Feast Logo" />
       <span class="nav-title">The Daily Feast</span>
     </div>
     
     <div class="navbar-user">
-      <span class="user-email">admin@thedailyfeast.com</span>
+      <!-- Correo dinámico del usuario logueado extraído del token JWT -->
+      <span class="user-email">{{ obtenerEmailUsuario() }}</span>
       <button class="logout-button" (click)="cerrarSesion()">
         <!-- Icono de salida SVG -->
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
