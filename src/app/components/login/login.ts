@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Auth } from '../../services/auth';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Auth } from '../../services/auth';
 
 @Component({
   selector: 'app-login',
@@ -19,38 +19,33 @@ export class Login {
   mensajeError = signal('');
 
   formularioLogin = new FormGroup({
-    email: new FormControl(''),
-    password: new FormControl('')
+    email: new FormControl('', [Validators.required, Validators.email]),
+    password: new FormControl('', [Validators.required])
   });
 
-  constructor(
-    private authService: Auth,
-    private router: Router
-  ) {
-  }
+  constructor(private authService: Auth, private router: Router) {}
 
-  iniciarSesion(): void {
+  // Acción para iniciar sesión conectando con el backend
+  iniciarSesion() {
+    if (this.formularioLogin.invalid) {
+      this.formularioLogin.markAllAsTouched();
+      return;
+    }
 
-    const email = this.formularioLogin.value.email || '';
-    const password = this.formularioLogin.value.password || '';
+    const email = this.formularioLogin.value.email!;
+    const password = this.formularioLogin.value.password!;
 
     this.authService.login(email, password).subscribe({
-      next: respuesta => {
-
-        if (respuesta.token) {
-          this.authService.guardarToken(respuesta.token);
-          this.router.navigate(['/home'])
-        } else {
-          this.mensajeError.set('No se recibió token');
-        }
+      next: (respuesta) => {
+        // Almacenar el token e ir al Home
+        this.authService.guardarToken(respuesta.token);
+        this.router.navigate(['/home']);
       },
-      error: error => {
-        this.mensajeError.set('Email o contraseña incorrectos');
-        console.error(error);
+      error: (err) => {
+        // Mostrar mensaje de error del backend en la interfaz
+        const msg = err.error?.message || 'Error de conexión con el servidor.';
+        this.mensajeError.set(msg);
       }
-    })
-
+    });
   }
 }
-
-

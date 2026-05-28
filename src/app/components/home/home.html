@@ -1,1 +1,233 @@
-<p>home works!</p>
+<div class="home-container">
+  <!-- Barra de Navegación Superior -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <svg class="nav-logo" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- Logotipo SVG minimalista en dorado -->
+        <circle cx="60" cy="50" r="4" stroke="#a28059" stroke-width="2" fill="none"/>
+        <path d="M40 76 C 40 58, 80 58, 80 76 Z" stroke="#a28059" stroke-width="2" fill="none"/>
+        <path d="M28 80 L 92 80" stroke="#a28059" stroke-width="2" stroke-linecap="round"/>
+        <path d="M78 88 C 88 84, 94 74, 90 60" stroke="#a28059" stroke-width="1" fill="none"/>
+      </svg>
+      <span class="nav-title">The Daily Feast</span>
+    </div>
+    
+    <div class="navbar-user">
+      <span class="user-email">admin@thedailyfeast.com</span>
+      <button class="logout-button" (click)="cerrarSesion()">
+        <!-- Icono de salida SVG -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        Cerrar sesión
+      </button>
+    </div>
+  </nav>
+
+  <!-- Contenedor Principal del Dashboard -->
+  <main class="dashboard-content">
+    <header class="dashboard-header">
+      <div class="header-text">
+        <h1 class="dashboard-title">Mis Reseñas de Restaurantes</h1>
+        <p class="dashboard-subtitle">Gestiona, califica y recuerda tus mejores experiencias gastronómicas.</p>
+      </div>
+      
+      <!-- Botón para Agregar Restaurante -->
+      <button class="add-button" (click)="openAddModal()">
+        <!-- Icono Más SVG -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        Agregar Reseña
+      </button>
+    </header>
+
+    <!-- Barra de Filtros e Interacciones -->
+    <div class="filter-bar">
+      <div class="search-container">
+        <!-- Icono de Búsqueda SVG -->
+        <span class="search-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </span>
+        <input type="text" class="search-input" placeholder="Buscar restaurante por nombre o comentario..." [value]="searchTerm()" (input)="onSearchChange($event)" />
+      </div>
+
+      <!-- Selector de Ordenación -->
+      <div class="sort-container">
+        <span class="sort-label">Ordenar por:</span>
+        <div class="select-wrapper">
+          <select class="sort-select" (change)="onSortChange($event)">
+            <option value="fecha">Fecha</option>
+            <option value="calificacion">Calificación</option>
+            <option value="nombre">Nombre</option>
+          </select>
+          <span class="select-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla / Sección de Resultados -->
+    <div class="table-card">
+      @if (restaurantesFiltrados().length > 0) {
+        <div class="table-responsive">
+          <table class="restaurants-table">
+            <thead>
+              <tr>
+                <th>Restaurante</th>
+                <th>Calificación</th>
+                <th>Fecha de Visita</th>
+                <th>Observaciones</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (restaurante of restaurantesFiltrados(); track restaurante._id) {
+                <tr class="table-row">
+                  <td class="font-bold text-primary">{{ restaurante.nombre }}</td>
+                  <td>
+                    <div class="stars-display">
+                      <!-- Estrellas Llenas -->
+                      @for (star of getStars(restaurante.calificacion); track $index) {
+                        <svg class="star-filled" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                      }
+                      <!-- Estrellas Vacías -->
+                      @for (empty of getEmptyStars(restaurante.calificacion); track $index) {
+                        <svg class="star-empty" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                      }
+                    </div>
+                  </td>
+                  <td class="text-muted">{{ restaurante.fechavisita | date:'dd/MM/yyyy' }}</td>
+                  <td class="observations-cell text-muted" title="{{ restaurante.observaciones }}">
+                    {{ restaurante.observaciones || 'Sin comentarios adicionales.' }}
+                  </td>
+                  <td>
+                    <div class="actions-group">
+                      <!-- Botón Editar -->
+                      <button class="action-btn edit-btn" (click)="openEditModal(restaurante)" title="Editar reseña">
+                        <!-- Icono Editar SVG -->
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                          <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z" />
+                        </svg>
+                      </button>
+                      
+                      <!-- Botón Eliminar -->
+                      <button class="action-btn delete-btn" (click)="eliminarRestaurante(restaurante._id)" title="Eliminar reseña">
+                        <!-- Icono Eliminar SVG -->
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                          <line x1="10" y1="11" x2="10" y2="17" />
+                          <line x1="14" y1="11" x2="14" y2="17" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <!-- Estado Vacío -->
+        <div class="empty-state">
+          <div class="empty-icon-container">
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+              <line x1="12" y1="11" x2="12" y2="17"/>
+              <line x1="9" y1="14" x2="15" y2="14"/>
+            </svg>
+          </div>
+          <h3 class="empty-title">Sin resultados</h3>
+          <p class="empty-subtitle">No se encontraron reseñas registradas o no coinciden con los términos de tu búsqueda.</p>
+          <button class="empty-add-btn" (click)="openAddModal()">Agregar mi primera reseña</button>
+        </div>
+      }
+    </div>
+  </main>
+
+  <!-- Modal de Agregar/Editar Reseña (Overlay) -->
+  @if (isModalOpen) {
+    <div class="modal-overlay">
+      <div class="modal-card">
+        <header class="modal-header">
+          <h2 class="modal-title">{{ isEditMode ? 'Editar Reseña' : 'Nueva Reseña de Restaurante' }}</h2>
+          <button class="close-modal-btn" (click)="closeModal()" aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </header>
+
+        <form [formGroup]="restauranteForm" (ngSubmit)="saveRestaurante()" class="modal-form">
+          <!-- Campo Nombre -->
+          <div class="form-group">
+            <label for="modal-nombre" class="input-label">Nombre del Restaurante</label>
+            <input type="text" id="modal-nombre" formControlName="nombre" class="form-input" placeholder="Ej. La Trattoria Dorada" />
+            @if (restauranteForm.get('nombre')?.touched && restauranteForm.get('nombre')?.invalid) {
+              <span class="error-text">El nombre es requerido.</span>
+            }
+          </div>
+
+          <!-- Campo Calificación por Estrellas Interactiva -->
+          <div class="form-group">
+            <label class="input-label">Calificación</label>
+            <div class="interactive-stars">
+              @for (ratingVal of [1, 2, 3, 4, 5]; track ratingVal) {
+                <button type="button" class="star-btn" (click)="setRating(ratingVal)" [attr.aria-label]="'Calificar con ' + ratingVal + ' estrellas'">
+                  @if (ratingVal <= selectedRating) {
+                    <!-- Estrella Llena SVG -->
+                    <svg class="star-filled interactive" viewBox="0 0 24 24" fill="currentColor">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                  } @else {
+                    <!-- Estrella Vacía SVG -->
+                    <svg class="star-empty interactive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                  }
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Campo Fecha de Visita -->
+          <div class="form-group">
+            <label for="modal-fecha" class="input-label">Fecha de Visita</label>
+            <input type="date" id="modal-fecha" formControlName="fechavisita" class="form-input" />
+            @if (restauranteForm.get('fechavisita')?.touched && restauranteForm.get('fechavisita')?.invalid) {
+              <span class="error-text">La fecha de visita es requerida.</span>
+            }
+          </div>
+
+          <!-- Campo Observaciones -->
+          <div class="form-group">
+            <label for="modal-observaciones" class="input-label">Observaciones / Comentarios</label>
+            <textarea id="modal-observaciones" formControlName="observaciones" rows="4" class="form-textarea" placeholder="Describe tu experiencia gastronómica, platos favoritos, atención..."></textarea>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="modal-actions">
+            <button type="button" class="cancel-button" (click)="closeModal()">Cancelar</button>
+            <button type="submit" class="save-button">{{ isEditMode ? 'Guardar Cambios' : 'Registrar Reseña' }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>
