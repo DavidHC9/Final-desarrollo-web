@@ -58,6 +58,9 @@ export class Home implements OnInit {
   // Calificación seleccionada interactivamente en el modal
   selectedRating = 5;
 
+  // ID del usuario que ha iniciado sesión
+  idUsuarioLogueado = '';
+
   // Formulario Reactivo para agregar/editar
   restauranteForm = new FormGroup({
     nombre: new FormControl('', [Validators.required]),
@@ -72,6 +75,8 @@ export class Home implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Obtener el ID del usuario logueado
+    this.idUsuarioLogueado = this.authService.obtenerIdUsuario();
     // Al cargar la vista, consultar la base de datos de MongoDB
     this.cargarRestaurantes();
   }
@@ -124,6 +129,10 @@ export class Home implements OnInit {
 
   // Abrir modal en modo "Editar"
   openEditModal(restaurante: Restaurante) {
+    if (!this.esDuenio(restaurante)) {
+      alert('No tienes permisos para editar esta reseña.');
+      return;
+    }
     this.isEditMode = true;
     this.selectedRestauranteId = restaurante._id || null;
     this.selectedRating = restaurante.calificacion;
@@ -189,11 +198,15 @@ export class Home implements OnInit {
   }
 
   // Eliminar reseña conectando con la API del backend
-  eliminarRestaurante(id: string | undefined) {
-    if (!id) return;
+  eliminarRestaurante(restaurante: Restaurante) {
+    if (!restaurante || !restaurante._id) return;
+    if (!this.esDuenio(restaurante)) {
+      alert('No tienes permisos para eliminar esta reseña.');
+      return;
+    }
     const confirmacion = confirm('¿Estás seguro de que deseas eliminar esta reseña?');
     if (confirmacion) {
-      this.restauranteService.borrarPorId(id).subscribe({
+      this.restauranteService.borrarPorId(restaurante._id).subscribe({
         next: () => {
           this.cargarRestaurantes(); // Recargar listado
         },
@@ -202,6 +215,13 @@ export class Home implements OnInit {
         }
       });
     }
+  }
+
+  // Verificar si el usuario actual es el creador de la reseña
+  esDuenio(restaurante: Restaurante): boolean {
+    // Si la reseña no tiene dueño (creada antes del control de propiedad), permitimos editarla/eliminarla para evitar el bloqueo de datos antiguos
+    if (!restaurante.usuarioId) return true;
+    return restaurante.usuarioId === this.idUsuarioLogueado;
   }
 
   // Generadores auxiliares de arreglos para dibujar estrellas en HTML

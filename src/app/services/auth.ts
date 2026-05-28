@@ -67,6 +67,21 @@ export class Auth {
     }
   }
 
+  obtenerIdUsuario(): string {
+    let token = this.obtenerToken();
+    if (!token) {
+      return '';
+    }
+    try {
+      let payloadBase64 = token.split('.')[1];
+      let payloadDecodificado = atob(payloadBase64);
+      let payload = JSON.parse(payloadDecodificado);
+      return payload.sub || '';
+    } catch (e) {
+      return '';
+    }
+  }
+
   cerrarSesion(): void {
     sessionStorage.removeItem('token_usuario')
   }

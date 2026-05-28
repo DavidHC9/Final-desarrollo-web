@@ -9,6 +9,7 @@ export interface Restaurante {
   calificacion: number;
   fechavisita: string;
   observaciones: string;
+  usuarioId?: string;
 }
 
 @Injectable({
